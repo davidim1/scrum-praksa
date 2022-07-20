@@ -8,8 +8,7 @@ module.exports = defineConfig({
       EXTERNAL_EMAIL: "jozomotika@gmail.com",
       EXTERNAL_PASSWORD: "motikaJozo1"
     },
-
-
+    watchForFileChanges: true,
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
