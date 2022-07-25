@@ -1,4 +1,4 @@
-class ProfileTabTest {
+class TeamMembersProfileTabTest {
     get vsModal() {
         return cy.get('.vs-c-modal')
     }
@@ -31,11 +31,25 @@ class ProfileTabTest {
         return cy.get('.el-date-picker__header')
     }
 
-    get deleteEventSection() {
-        return cy.get('.vs-c-timeline__activity-edit')
+    get deleteModalNew() {
+        return cy.get('.vs-c-modal')
     }
 
-    get okayBtn() {
+    get deleteModalUl() {
+        return this.deleteModalNew.find('ul')
+    }
+
+    get deleteModalLi() {
+        return this.deleteModalUl.find('li').then(el => {
+            expect(el.length).to.be.greaterThan(1)
+        })
+    }
+
+    get deleteBtn() {
+        return this.deleteModalLi.should('exist').eq(1).find('button').last()
+    }
+
+    get okBtn() {
         return this.vsModal.find('button').eq(1)
     }
 
@@ -95,17 +109,27 @@ class ProfileTabTest {
         return cy.get('.vs-c-mt-input').eq(5)
     }
 
-    get deleteBtn() {
-        return cy.get('button[class="el-button el-button--text el-button--large"]').eq(0)
-    }
-
     get yesBtnDelModal() {
         return cy.get('button[name="save-btn')
     }
 
     get noBtnDelModal() {
         return cy.get('button[name="cancel-btn')
-    } 
+    }
+    
+    get addedEvent() {
+        return cy.get('.vs-u-display--block')
+    }
+
+    addEventFunction(additionalInfo) {
+        this.addEventBtn.click();
+        this.eventDropdownBtn.click();
+        this.singleEventDropdown.find('a').contains(additionalInfo).click({force:true})
+    }
+
+    deleteEventFunction() {
+        this.deleteBtnFilip
+    }
 }
 
-export const profileTabTest = new ProfileTabTest
+export const teamMembersProfileTabTest = new TeamMembersProfileTabTest
