@@ -1,4 +1,4 @@
-class TeamMembersProfileTabTest {
+class TeamMembersProfileTab {
     get vsModal() {
         return cy.get('.vs-c-modal')
     }
@@ -132,4 +132,4 @@ class TeamMembersProfileTabTest {
     }
 }
 
-export const teamMembersProfileTabTest = new TeamMembersProfileTabTest
+export const teamMembersProfileTab = new TeamMembersProfileTab();

@@ -1,4 +1,4 @@
-import { teamMembersProfileTabTest } from '../page_objects/teamMembersProfileUpdatePage';
+import { teamMembersProfileTab } from '../page_objects/teamMembersProfileUpdatePage';
 import { Faker, faker } from '@faker-js/faker';
 
 
@@ -17,7 +17,7 @@ describe('Team members Profile Tab', () => {
         randomAddress: faker.address.streetAddress(),
         randomTelNo: faker.phone.number(),
         randomSkype: faker.internet.userName(),
-        randomTwitter: faker.internet.userName() + '1',
+        randomTwitter: faker.internet.userName() + faker.random.numeric(1),
         randomMonth: faker.date.month().substring(0, 3),
         randomBirthdayDay: faker.datatype.number({
             'min': 1,
@@ -29,18 +29,31 @@ describe('Team members Profile Tab', () => {
         }),
         randomJobArea: faker.name.jobArea(),
         randomJobDescriptor: faker.name.jobDescriptor()
+    };
+    let events = {
+        secondEmail: "2nd email",
+        address: "Address",
+        phoneNumber: "Phone number",
+        skype: "Skype",
+        linkedin: "Linkedin",
+        twitter: "Twitter",
+        birthday: "Birthday",
+        maritalStatus: "Marital status",
+        family: "Family",
+        other: "Other"
     }
+
     before('Be logged in', () => {
         cy.loginViaBE();
         cy.visit('/organizations/6552/team');
         cy.url().should('include', '/team');
-        teamMembersProfileTabTest.okBtn.click();
-        teamMembersProfileTabTest.memberInfo.click();
+        teamMembersProfileTab.okBtn.click();
+        teamMembersProfileTab.memberInfo.click();
     })
 
     it ('Change or add phone number', () => {
-        teamMembersProfileTabTest.contactPhone.invoke('val','').type(userData.phoneNumber).blur();
-        teamMembersProfileTabTest.phoneUpdateBtn.then(el => {
+        teamMembersProfileTab.contactPhone.invoke('val','').type(userData.phoneNumber).blur();
+        teamMembersProfileTab.phoneUpdateBtn.then(el => {
             if (el.length > 0) {
                 cy.wrap(el).then($el => {
                     expect($el).to.exist;
@@ -51,8 +64,8 @@ describe('Team members Profile Tab', () => {
      })
 
      it ('Total working hours per week change', () => {
-        teamMembersProfileTabTest.workingHours.invoke('val','').type(userData.hoursPerWeek);
-        teamMembersProfileTabTest.phoneUpdateBtn.then(el => {
+        teamMembersProfileTab.workingHours.invoke('val','').type(userData.hoursPerWeek);
+        teamMembersProfileTab.phoneUpdateBtn.then(el => {
             if (el.length > 0) {
                 cy.wrap(el).then($el => {
                     expect($el).to.exist;
@@ -67,9 +80,9 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: '/api/v2/organizations/*/roles'
         }).as('addingRole');
-        teamMembersProfileTabTest.rolesBtn.click();
-        teamMembersProfileTabTest.roleInput.type(userData.randomJob);
-        teamMembersProfileTabTest.confirmRoleBtn.click({force: true});
+        teamMembersProfileTab.rolesBtn.click();
+        teamMembersProfileTab.roleInput.type(userData.randomJob);
+        teamMembersProfileTab.confirmRoleBtn.click({force: true});
         cy.wait('@addingRole').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
@@ -80,16 +93,16 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('adding2ndEmail');
-        teamMembersProfileTabTest.addEventBtn.should('be.visible');
-        teamMembersProfileTabTest.addEventFunction('2nd email');
-        teamMembersProfileTabTest.eventContentInput.click().type(userData.randomEmail);
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventBtn.should('be.visible');
+        teamMembersProfileTab.addEventFunction(events.secondEmail);
+        teamMembersProfileTab.eventContentInput.click().type(userData.randomEmail);
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@adding2ndEmail').then(interception => {
             eventId = interception.response.body.id;
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addedEvent.last().should('contain', userData.randomEmail)
+        teamMembersProfileTab.addedEvent.last().should('contain', userData.randomEmail)
     })
 
     it ('Add Address', () => {
@@ -97,14 +110,14 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('addingAddress');
-        teamMembersProfileTabTest.addEventFunction('Address');
-        teamMembersProfileTabTest.eventContentInput.click().type(userData.randomAddress);
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventFunction(events.address);
+        teamMembersProfileTab.eventContentInput.click().type(userData.randomAddress);
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@addingAddress').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addedEvent.last().should('contain', userData.randomAddress)
+        teamMembersProfileTab.addedEvent.last().should('contain', userData.randomAddress)
     })
 
     it ('Add Telephone number', () => {
@@ -112,14 +125,14 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('addingTelephone');
-        teamMembersProfileTabTest.addEventFunction('Phone number');
-        teamMembersProfileTabTest.eventContentInput.click().type(userData.randomTelNo);
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventFunction(events.phoneNumber);
+        teamMembersProfileTab.eventContentInput.click().type(userData.randomTelNo);
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@addingTelephone').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addedEvent.last().should('contain', userData.randomTelNo)
+        teamMembersProfileTab.addedEvent.last().should('contain', userData.randomTelNo)
     })
 
     it ('Add Skype', () => {
@@ -127,14 +140,14 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('addingSkype');
-        teamMembersProfileTabTest.addEventFunction('Skype');
-        teamMembersProfileTabTest.eventContentInput.click().type(userData.randomSkype);
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventFunction(events.skype);
+        teamMembersProfileTab.eventContentInput.click().type(userData.randomSkype);
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@addingSkype').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addedEvent.last().should('contain', userData.randomSkype)
+        teamMembersProfileTab.addedEvent.last().should('contain', userData.randomSkype)
     })
 
     it ('Add LinkedIn', () => {
@@ -142,14 +155,14 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('addingLinkedIn');
-        teamMembersProfileTabTest.addEventFunction('Linkedin');
-        teamMembersProfileTabTest.eventContentInput.click().type('www.linkedin.com/' + userData.randomTwitter);
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventFunction(events.linkedin);
+        teamMembersProfileTab.eventContentInput.click().type('www.linkedin.com/' + userData.randomSkype);
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@addingLinkedIn').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addedEvent.last().should('contain', 'www.linkedin.com/' + userData.randomTwitter);
+        teamMembersProfileTab.addedEvent.last().should('contain', 'www.linkedin.com/' + userData.randomSkype);
     })
 
     it ('Add Twitter', () => {
@@ -157,14 +170,14 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('addingTwitter');
-        teamMembersProfileTabTest.addEventFunction('Twitter');
-        teamMembersProfileTabTest.eventContentInput.click().type(userData.randomSkype + '1');
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventFunction(events.twitter);
+        teamMembersProfileTab.eventContentInput.click().type(userData.randomTwitter);
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@addingTwitter').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addedEvent.last().should('contain', userData.randomSkype + '1')
+        teamMembersProfileTab.addedEvent.last().should('contain', userData.randomTwitter)
     })
 
     it ('Add Birthday', () => {
@@ -172,14 +185,14 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('addingBirthday');
-        teamMembersProfileTabTest.addEventFunction('Birthday');
-        teamMembersProfileTabTest.eventContentInput.click().type(userData.randomBirthdayDay + ' ' + userData.randomMonth + ' ' + userData.randomBirtdayYear).type('{enter}');
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventFunction(events.birthday);
+        teamMembersProfileTab.eventContentInput.click().type(userData.randomBirthdayDay + ' ' + userData.randomMonth + ' ' + userData.randomBirtdayYear).type('{enter}');
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@addingBirthday').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addNewEventSection.last().should('contain', 'Birthday');
+        teamMembersProfileTab.addNewEventSection.last().should('contain', 'Birthday');
     })
 
     it ('Add Marital Status', () => {
@@ -187,14 +200,14 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('addingMaritalStatus');
-        teamMembersProfileTabTest.addEventFunction('Marital status');
-        teamMembersProfileTabTest.eventContentInput.click().type('Divorced');
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventFunction(events.maritalStatus);
+        teamMembersProfileTab.eventContentInput.click().type('Divorced');
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@addingMaritalStatus').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addedEvent.last().should('contain', 'Divorced')
+        teamMembersProfileTab.addedEvent.last().should('contain', 'Divorced')
     })
 
     it ('Add Family', () => {
@@ -202,14 +215,14 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('addingFamily');
-        teamMembersProfileTabTest.addEventFunction('Family');
-        teamMembersProfileTabTest.eventContentInput.click().type('None');
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventFunction(events.family);
+        teamMembersProfileTab.eventContentInput.click().type('None');
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@addingFamily').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addedEvent.last().should('contain', 'None')
+        teamMembersProfileTab.addedEvent.last().should('contain', 'None')
     })
 
     it ('Add Other', () => {
@@ -217,15 +230,15 @@ describe('Team members Profile Tab', () => {
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/profile'
         }).as('addingOther');
-        teamMembersProfileTabTest.addEventFunction('Other');
-        teamMembersProfileTabTest.otherInput.click().type(userData.randomJobArea);
-        teamMembersProfileTabTest.eventContentInput.click().type(userData.randomJobDescriptor);
-        teamMembersProfileTabTest.confirmNewEventBtn.should('be.visible');
-        teamMembersProfileTabTest.confirmNewEventBtn.click();
+        teamMembersProfileTab.addEventFunction(events.other);
+        teamMembersProfileTab.otherInput.click().type(userData.randomJobArea);
+        teamMembersProfileTab.eventContentInput.click().type(userData.randomJobDescriptor);
+        teamMembersProfileTab.confirmNewEventBtn.should('be.visible');
+        teamMembersProfileTab.confirmNewEventBtn.click();
         cy.wait('@addingOther').then(interception => {
             expect(interception.response.statusCode).eq(201)
         });
-        teamMembersProfileTabTest.addedEvent.last().should('contain', userData.randomJobDescriptor)
+        teamMembersProfileTab.addedEvent.last().should('contain', userData.randomJobDescriptor)
     })
 
     it ('Delete single event', () => {
@@ -233,17 +246,17 @@ describe('Team members Profile Tab', () => {
             method: 'DELETE',
             url: `https://api.vivifyscrum-stage.com/api/v2/organizations/*/members/*/profile/${eventId}`
         }).as('deletingEvent');
-        teamMembersProfileTabTest.deleteModalUl.should('contain', 'li')
-        teamMembersProfileTabTest.deleteEventFunction();
-        teamMembersProfileTabTest.deleteBtn.click({force:true})
-        teamMembersProfileTabTest.yesBtnDelModal.click();
+        teamMembersProfileTab.deleteModalUl.should('contain', 'li')
+        teamMembersProfileTab.deleteEventFunction();
+        teamMembersProfileTab.deleteBtn.click({force:true})
+        teamMembersProfileTab.yesBtnDelModal.click();
         cy.wait('@deletingEvent').then(interception => {
             expect(interception.response.statusCode).eq(200)
         });
     })
 
     it ('Cancel delete single event', () => {
-        teamMembersProfileTabTest.deleteBtn.click({force:true});
-        teamMembersProfileTabTest.noBtnDelModal.click()
+        teamMembersProfileTab.deleteBtn.click({force:true});
+        teamMembersProfileTab.noBtnDelModal.click()
     })
 })
