@@ -63,11 +63,11 @@ class TeamMembersTimeOffTab {
     }
 
     get singleTrFromLeftTable() {
-        return this.dateTableModalLeft.find('tr[class="el-date-table__row"]')
+        return this.dateTableModalLeft.find('tr')
     }
 
     get singleTrFromRightTable() {
-        return this.dateTableModalRight.find('tr[class="el-date-table__row"]')
+        return this.dateTableModalRight.find('tr')
     }
 
     get datePickBtn() {
@@ -82,12 +82,12 @@ class TeamMembersTimeOffTab {
         return cy.get('.vs-c-modal')
     }
 
-    get deleteModalDiv() {
+    get deleteModalParent() {
         return this.deleteModalNew.find('div[class="vs-c-timeline vs-c-section"]')
     }
 
     get deleteModalLi() {
-        return this.deleteModalDiv.find('li').then(el => {
+        return this.deleteModalParent.find('li').then(el => {
             expect(el.length).to.be.greaterThan(1)
         })
     }
@@ -113,16 +113,37 @@ class TeamMembersTimeOffTab {
     }
 
 
-    addEventFunction(additonalInfo, eqNum) {
+    addEventFunction(additonalInfo, index) {
         teamMembersProfileTab.addEventBtn.eq(1).should('be.visible').click();
         teamMembersProfileTab.eventDropdownBtn.should('exist').click();
         this.dropdownTimeOff.contains(additonalInfo).click({force:true});
         this.datePickBtn.should('be.visible').click();
-        this.singleTrFromLeftTable.eq(eqNum).find('td').eq(userData.randomDatePickFirstHalf).click();
-        this.singleTrFromLeftTable.eq(eqNum).find('td').eq(userData.randomDatePickSecondHalf).click();
+        this.singleTrFromLeftTable.eq(index).find('td').eq(userData.randomDatePickFirstHalf).click();
+        this.singleTrFromLeftTable.eq(index).find('td').eq(userData.randomDatePickSecondHalf).click();
         this.confirmNewEventBtn.should('exist').click();
     }
 
+    addEventFunctionInitialSteps() {
+        teamMembersProfileTab.addEventBtn.should('be.visible');
+        teamMembersProfileTab.addEventBtn.eq(1).click();
+        teamMembersProfileTab.eventDropdownBtn.click();
+    }
+
+    getIndex(array, key, value) {
+        return array.findIndex(obj => obj[key] === value) + 2;
+    }
+
+    getIndex2(array, key, value) {
+        return array.findIndex(obj => obj[key] === value) + 3;
+    }
+
+    getIndex3(array, key, value) {
+        return array.findIndex(obj => obj[key] === value) + 4;
+    }
+
+    getIndex4(array, key, value) {
+        return array.findIndex(obj => obj[key] === value) + 5;
+    }
 }
 
 export const teamMembersTimeOffTab = new TeamMembersTimeOffTab();

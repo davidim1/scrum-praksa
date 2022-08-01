@@ -3,16 +3,19 @@ import { teamMembersTimeOffTab } from "../page_objects/teamMembersTimeOffPage";
 import { userData } from "../fixtures/userData"
 
 describe('Time off tab', () =>{
-    let events = {
-        parentalLeave: "Parental leave",
-        vacation: "Vacation",
-        sickLeave: "Sick leave",
-        paidTimeOff: "Paid time off",
-        unpaidTimeOff: "Unpaid time off",
-        other: "Other"
-    }
+    let eventName;
+    let events = [
+        {eventName: "Parental leave"},
+        {eventName: "Vacation"},
+        {eventName: "Sick leave"},
+        {eventName: "Paid time off"},
+        {eventName: "Unpaid time off"},
+        {eventName: "Other"}
+    ]
 
-    before('Be logged in', () => {
+    
+
+    before ('Be logged in', () => {
         cy.loginViaBE();
         cy.visit('/organizations/6552/team');
         cy.url().should('include', '/team');
@@ -21,22 +24,22 @@ describe('Time off tab', () =>{
         teamMembersTimeOffTab.timeOffTabBtn.click();
     })
 
-    it ('Change joining date', () => {
+    xit ('Change joining date', () => {
         cy.intercept({
             method: 'PUT',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*'
         }).as('changingDate');
         teamMembersTimeOffTab.joiningDateInput.click().clear();
-        teamMembersTimeOffTab.joiningDateInput.click().type(userData.randomDateDay + ' ' + userData.randomDateMonth + ' ' + userData.randomDateYear).type('{enter}');
+        teamMembersTimeOffTab.joiningDateInput.click().type(userData.randomDate).type('{enter}');
         teamMembersTimeOffTab.updateDateBtn.click();
         cy.wait('@changingDate')
         teamMembersTimeOffTab.updateDateBtn.should('not.be.visible');
         teamMembersProfileTab.memberInfo.click();
         teamMembersTimeOffTab.timeOffTabBtn.click();
-        teamMembersTimeOffTab.joiningDateInput.click().invoke('val').should('contain', userData.randomDateDay + ' ' + userData.randomDateMonth + ' ' + userData.randomDateYear)
+        teamMembersTimeOffTab.joiningDateInput.click().invoke('val').should('contain', userData.randomDate)
     })
 
-    it ('Change number of vacation days', () => {
+    xit ('Change number of vacation days', () => {
         cy.intercept({
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/vacation-days-event'
@@ -55,7 +58,7 @@ describe('Time off tab', () =>{
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/timeoff-activities'
         }).as('addingParentalLeaveEvent')
-        teamMembersTimeOffTab.addEventFunction(events.parentalLeave, 1)
+        teamMembersTimeOffTab.addEventFunction('Parental leave', teamMembersTimeOffTab.getIndex(events, eventName, 'Parental leave'))
         cy.wait('@addingParentalLeaveEvent').then(interception => {
             expect(interception.response.statusCode).eq(200)
         })
@@ -67,7 +70,7 @@ describe('Time off tab', () =>{
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/timeoff-activities'
         }).as('addingVacationEvent')
         teamMembersProfileTab.addEventBtn.should('be.visible');
-        teamMembersTimeOffTab.addEventFunction(events.vacation, 2)
+        teamMembersTimeOffTab.addEventFunction('Vacation', teamMembersTimeOffTab.getIndex2(events, eventName, 'Vacation' + 1))
         cy.wait('@addingVacationEvent').then(interception => {
             expect(interception.response.statusCode).eq(200)
         })
@@ -79,7 +82,7 @@ describe('Time off tab', () =>{
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/timeoff-activities'
         }).as('addingSickLeaveEvent')
         teamMembersProfileTab.addEventBtn.should('be.visible');
-        teamMembersTimeOffTab.addEventFunction(events.sickLeave, 3)
+        teamMembersTimeOffTab.addEventFunction('Sick leave', teamMembersTimeOffTab.getIndex3(events, eventName, 'Sick leave' + 2))
         cy.wait('@addingSickLeaveEvent').then(interception => {
             expect(interception.response.statusCode).eq(200)
         })
@@ -91,7 +94,7 @@ describe('Time off tab', () =>{
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/timeoff-activities'
         }).as('addingPaidTimeOffEvent')
         teamMembersProfileTab.addEventBtn.should('be.visible');
-        teamMembersTimeOffTab.addEventFunction(events.paidTimeOff, 4)
+        teamMembersTimeOffTab.addEventFunction('Paid time off', teamMembersTimeOffTab.getIndex4(events, eventName, 'Paid time off' + 3))
         cy.wait('@addingPaidTimeOffEvent').then(interception => {
             expect(interception.response.statusCode).eq(200)
         })
@@ -102,10 +105,8 @@ describe('Time off tab', () =>{
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/timeoff-activities'
         }).as('addingUnpaidTimeOffEvent')
-        teamMembersProfileTab.addEventBtn.should('be.visible');
-        teamMembersProfileTab.addEventBtn.eq(1).click();
-        teamMembersProfileTab.eventDropdownBtn.click();
-        teamMembersTimeOffTab.dropdownTimeOff.contains(events.unpaidTimeOff).click({force:true});
+        teamMembersTimeOffTab.addEventFunctionInitialSteps();
+        teamMembersTimeOffTab.dropdownTimeOff.contains('Unpaid time off').click({force:true});
         teamMembersTimeOffTab.datePickBtn.click();
         teamMembersTimeOffTab.singleTrFromRightTable.eq(1).find('td').eq(userData.randomDatePickFirstHalf).click();
         teamMembersTimeOffTab.singleTrFromRightTable.eq(1).find('td').eq(userData.randomDatePickSecondHalf).click();
@@ -120,10 +121,8 @@ describe('Time off tab', () =>{
             method: 'POST',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/timeoff-activities'
         }).as('addingOtherEvent')
-        teamMembersProfileTab.addEventBtn.should('be.visible');
-        teamMembersProfileTab.addEventBtn.eq(1).click();
-        teamMembersProfileTab.eventDropdownBtn.click();
-        teamMembersTimeOffTab.dropdownTimeOff.contains(events.other).click({force:true});
+        teamMembersTimeOffTab.addEventFunctionInitialSteps();
+        teamMembersTimeOffTab.dropdownTimeOff.contains('Other').click({force:true});
         teamMembersTimeOffTab.otherEventInputField.type(userData.randomText)
         teamMembersTimeOffTab.datePickBtn.eq(1).click();
         teamMembersTimeOffTab.singleTrFromRightTable.eq(2).find('td').eq(userData.randomDatePickFirstHalf).click();
@@ -139,7 +138,7 @@ describe('Time off tab', () =>{
             method: 'DELETE',
             url: Cypress.config('baseAPI') + '/organizations/*/members/*/timeoff-activities/*'
         }).as('deletingEvent');
-        teamMembersTimeOffTab.deleteModalLi.should('exist')
+        teamMembersTimeOffTab.deleteModalLi.should('be.visible')
         teamMembersTimeOffTab.deleteBtn.click({force:true})
         teamMembersProfileTab.yesBtnDelModal.click();
         cy.wait('@deletingEvent').then(interception => {
@@ -162,9 +161,8 @@ describe('Time off tab', () =>{
         teamMembersTimeOffTab.singleTrFromRightTable.eq(2).find('td').eq(userData.randomDatePickFirstHalf).click();
         teamMembersTimeOffTab.singleTrFromRightTable.eq(2).find('td').eq(userData.randomDatePickSecondHalf).click();
         teamMembersTimeOffTab.editEventDropdownBtn.click();
-        teamMembersTimeOffTab.dropdownTimeOff.contains(events.parentalLeave).click({force:true});
+        teamMembersTimeOffTab.dropdownTimeOff.contains('Parental leave').click({force:true});
         teamMembersTimeOffTab.updateEventBtn.should('be.visible').click();
         cy.wait('@editingEvent')
     })
 })
-
